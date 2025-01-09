@@ -1,8 +1,10 @@
-from flask import Blueprint
+from flask import Blueprint, render_template
 
 # Create main blueprint
 bp = Blueprint('main', __name__)
 
-# Import routes
-from . import main
+@bp.route('/')
+def index():
+    return render_template('index.html')
+
 from . import calsys
