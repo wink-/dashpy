@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}DashPy - Dashboard{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Settings</h5>
+            </div>
+            <div class="card-body">
+                <form id="settingsForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="theme" class="form-label">Theme</label>
+                                <select class="form-select" id="theme" name="theme">
+                                    <option value="light">Light</option>
+                                    <option value="dark">Dark</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="itemsPerPage" class="form-label">Items per Page</label>
+                                <select class="form-select" id="itemsPerPage" name="items_per_page">
+                                    <option value="10">10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Settings</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Data Table</h5>
+            </div>
+            <div class="card-body">
+                <table id="dataTable" class="table table-striped" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Value</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    // Load settings
+    $.get('/api/settings', function(data) {
+        $('#theme').val(data.theme);
+        $('#itemsPerPage').val(data.items_per_page);
+    });
+
+    // Save settings
+    $('#settingsForm').on('submit', function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: '/api/settings',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({
+                theme: $('#theme').val(),
+                items_per_page: parseInt($('#itemsPerPage').val())
+            }),
+            success: function() {
+                alert('Settings saved successfully!');
+            }
+        });
+    });
+
+    // Initialize DataTable
+    $('#dataTable').DataTable({
+        serverSide: false,
+        ajax: {
+            url: '/api/data',
+            dataSrc: ''
+        },
+        pageLength: parseInt($('#itemsPerPage').val()),
+        columns: [
+            { data: 'id' },
+            { data: 'name' },
+            { data: 'value' },
+            { data: 'date' }
+        ]
+    });
+});
+</script>
+{% endblock %}
